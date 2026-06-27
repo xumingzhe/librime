@@ -491,6 +491,7 @@ typedef struct RIME_FLAVORED(rime_api_t) {
                                                  Bool abbreviated);
 
   Bool (*set_input)(RimeSessionId session_id, const char* input);
+  Bool (*add_candidate)(RimeSessionId session_id, const char* text, const char* comment);
 
   void (*get_shared_data_dir_s)(char* dir, size_t buffer_size);
   void (*get_user_data_dir_s)(char* dir, size_t buffer_size);
@@ -591,4 +592,5 @@ RIME_API RIME_FLAVORED(RimeApi) * RIME_FLAVORED(rime_get_api)(void);
 }
 #endif
 
+RIME_API Bool RimeAddCandidate(RimeSessionId session_id, const char* text, const char* comment);
 #endif  // RIME_API_H_

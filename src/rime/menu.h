@@ -41,6 +41,8 @@ class Menu {
 
   bool empty() const;
 
+  void AddCandidateDirectly(an<Candidate> cand, size_t pos);
+
  private:
   an<MergedTranslation> merged_;
   an<Translation> result_;

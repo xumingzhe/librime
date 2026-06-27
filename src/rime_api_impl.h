@@ -4,6 +4,7 @@
 #include "rime_api.h"
 
 #include <rime/common.h>
+#include <rime/candidate.h>
 #include <rime/composition.h>
 #include <rime/config.h>
 #include <rime/context.h>
@@ -15,6 +16,7 @@
 #include <rime/schema.h>
 #include <rime/service.h>
 #include <rime/setup.h>
+#include <rime/translation.h>
 #include <rime/signature.h>
 #include <rime/switches.h>
 
@@ -1059,6 +1061,27 @@ RIME_DEPRECATED Bool RimeDeleteCandidateOnCurrentPage(RimeSessionId session_id,
                                                  &Context::DeleteCandidate);
 }
 
+static Bool RimeAddCandidateImpl(RimeSessionId session_id,
+                                 const char* text,
+                                 const char* comment) {
+  an<Session> session(Service::instance().GetSession(session_id));
+  if (!session)
+    return False;
+  Context* ctx = session->context();
+  if (!ctx || !ctx->HasMenu())
+    return False;
+  auto& comp = ctx->composition();
+  Segment& seg = comp.back();
+  an<Candidate> cand =
+      New<SimpleCandidate>("cloud_pinyin", seg.start, seg.end, text, comment);
+  if (seg.menu->candidate_count() > 0) {
+    seg.menu->AddCandidateDirectly(cand, 1);
+  } else {
+    seg.menu->AddTranslation(New<UniqueTranslation>(cand));
+  }
+  return True;
+}
+
 static const char* RimeGetInput(RimeSessionId session_id) {
   an<Session> session(Service::instance().GetSession(session_id));
   if (!session)
@@ -1223,6 +1246,7 @@ RIME_API RIME_FLAVORED(RimeApi) * RIME_FLAVORED(rime_get_api)() {
     s_api.delete_candidate_on_current_page = &RimeDeleteCandidateOnCurrentPage;
     s_api.get_state_label_abbreviated = &RimeGetStateLabelAbbreviated;
     s_api.set_input = &RimeSetInput;
+    s_api.add_candidate = &RimeAddCandidateImpl;
     s_api.get_shared_data_dir_s = &RimeGetSharedDataDirSecure;
     s_api.get_user_data_dir_s = &RimeGetUserDataDirSecure;
     s_api.get_prebuilt_data_dir_s = &RimeGetPrebuiltDataDirSecure;

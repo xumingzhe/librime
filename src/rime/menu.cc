@@ -68,4 +68,9 @@ bool Menu::empty() const {
   return candidates_.empty() && result_->exhausted();
 }
 
+void Menu::AddCandidateDirectly(an<Candidate> cand, size_t pos) {
+  if (pos > candidates_.size()) pos = candidates_.size();
+  candidates_.insert(candidates_.begin() + pos, cand);
+}
+
 }  // namespace rime
